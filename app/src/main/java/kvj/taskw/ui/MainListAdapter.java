@@ -110,7 +110,8 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ListVi
                 int newVisibility = visible ? View.GONE : View.VISIBLE;
                 bottomBtns.setVisibility(newVisibility);
                 annotations.setVisibility(newVisibility);
-                id.setVisibility(newVisibility);
+                // We are making id always visible
+                //  id.setVisibility(newVisibility);
             }
         });
         bindLongCopyText(json, holder.card.findViewById(R.id.task_description), json.optString("description"));
@@ -301,6 +302,7 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ListVi
         views.setViewVisibility(R.id.task_priority, info.fields.containsKey("priority") ? View.VISIBLE : View.GONE);
         views.setImageViewResource(R.id.task_status_btn, status2icon(status));
         views.setViewVisibility(R.id.task_annotations, View.GONE);
+        views.setTextViewText(R.id.task_uuid, json.optString("uuid"));
         views.setViewVisibility(R.id.task_annotations_flag, View.GONE);
         views.setViewVisibility(R.id.task_start_stop_btn, View.GONE);
         for (Map.Entry<String, String> field : info.fields.entrySet()) {

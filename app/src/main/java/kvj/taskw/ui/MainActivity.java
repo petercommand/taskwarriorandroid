@@ -260,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements Controller.ToastM
         Intent dialog = new Intent(this, AnnotationDialog.class);
         dialog.putExtra(App.KEY_ACCOUNT, form.getValue(App.KEY_ACCOUNT, String.class));
         dialog.putExtra(App.KEY_EDIT_UUID, json.optString("uuid"));
+        logger.d("annotate: ", json.optString("recur"));
         startActivityForResult(dialog, App.ANNOTATE_REQUEST);
     }
 
@@ -593,7 +594,8 @@ public class MainActivity extends AppCompatActivity implements Controller.ToastM
                 sync();
                 break;
             case R.id.menu_tb_undo:
-                undo();
+                logger.d("Undo disabled");
+                // undo();
                 break;
             case R.id.menu_tb_filter:
                 showFilter();

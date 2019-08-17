@@ -296,7 +296,8 @@ public class Controller extends org.kvj.bravo7.ng.Controller {
             }
             Bundle data = new Bundle();
             data.putString(App.ACCOUNT_FOLDER, folderName);
-            if (!accountManager.addAccountExplicitly(new Account(name, App.ACCOUNT_TYPE), "", data)) {
+            Account account = new Account(name, App.ACCOUNT_TYPE);
+            if (!accountManager.addAccountExplicitly(account, "", data)) {
                 logger.w("Failed to create account", name);
                 return "Account create failure";
             }

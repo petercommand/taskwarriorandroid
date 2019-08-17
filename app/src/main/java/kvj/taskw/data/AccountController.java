@@ -24,9 +24,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -69,6 +69,7 @@ public class AccountController {
     public String taskAnnotate(String uuid, String text) {
         StringAggregator err = new StringAggregator();
         if (!callTask(outConsumer, err, uuid, "annotate", escape(text))) { // Failure
+            logger.d("Annotate error: ", err.text());
             return err.text();
         }
         scheduleSync(TimerType.AfterChange);
@@ -505,6 +506,7 @@ public class AccountController {
 
             @Override
             void eat(String key, String value) {
+                logger.d("taskReportInfo", "key: ", key, "value: ", value);
                 if (key.endsWith(".columns")) {
                     String[] parts = value.split(",");
                     for (String p : parts) {
@@ -560,12 +562,7 @@ public class AccountController {
     private Thread readStream(InputStream stream, final OutputStream outputStream,
                               final StreamConsumer consumer) {
         final Reader reader;
-        try {
-            reader = new InputStreamReader(stream, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.e("Error opening stream");
-            return null;
-        }
+        reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -590,6 +587,7 @@ public class AccountController {
                                 final String question = line.toString().substring(0, line.size()
                                                                                      - CONFIRM_YN
                                                                                          .length()).trim();
+                                logger.d("Emitting question: ", question);
                                 listeners().emit(new Listeners.ListenerEmitter<TaskListener>() {
                                     @Override
                                     public boolean emit(TaskListener listener) {
@@ -597,7 +595,9 @@ public class AccountController {
                                             @Override
                                             public boolean call(Boolean value) {
                                                 try {
-                                                    outputStream.write(String.format("%s\n", value? "yes": "no").getBytes("utf-8"));
+                                                    logger.d("annotate: writing response ", value, " to output stream");
+                                                    outputStream.write(String.format("%s\n", value? "yes": "no").getBytes(StandardCharsets.UTF_8));
+                                                    outputStream.flush();
                                                 } catch (IOException e) {
                                                     e.printStackTrace();
                                                 }
@@ -668,11 +668,16 @@ public class AccountController {
             Collections.addAll(args, arguments);
             ProcessBuilder pb = new ProcessBuilder(args);
             pb.directory(tasksFolder);
-            pb.environment().put("TASKRC", new File(tasksFolder, TASKRC).getAbsolutePath());
-            pb.environment().put("TASKDATA", new File(tasksFolder, DATA_FOLDER).getAbsolutePath());
+            String taskrc = new File(tasksFolder, TASKRC).getAbsolutePath();
+            pb.environment().put("TASKRC", taskrc);
+            String taskdata = new File(tasksFolder, DATA_FOLDER).getAbsolutePath();
+            pb.environment().put("TASKDATA", taskdata);
             Process p = pb.start();
+            logger.d("TASKRC: ", taskrc);
+            logger.d("TASKDATA: ", taskdata);
             logger.d("Calling now:", tasksFolder, args);
 //            debug("Execute:", args);
+
             Thread outThread = readStream(p.getInputStream(), p.getOutputStream(), out);
             Thread errThread = readStream(p.getErrorStream(), null, err);
             int exitCode = p.waitFor();
@@ -881,7 +886,8 @@ public class AccountController {
 
     public List<JSONObject> taskList(String query) {
         if (TextUtils.isEmpty(query)) {
-            query = "status:pending";
+            //query = "status:pending";
+            query = "";
         } else {
             query = String.format("(%s)", query);
         }
@@ -900,7 +906,9 @@ public class AccountController {
         List<String> params = new ArrayList<>();
         params.add("rc.json.array=off");
         params.add("export");
-        params.add(escape(query));
+        if (!query.equals("")) {
+            params.add(escape(query));
+        }
         callTask(new StreamConsumer() {
             @Override
             public void eat(String line) {

@@ -9,11 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -51,6 +53,7 @@ public class RunActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run);
+        EditText editText = (EditText) findViewById(R.id.run_command);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         RecyclerView list = (RecyclerView) findViewById(R.id.run_output);
         list.setLayoutManager(new LinearLayoutManager(this));
@@ -59,6 +62,20 @@ public class RunActivity extends AppCompatActivity {
         form.add(new TransientAdapter<>(new ListStringBundleAdapter(), null), App.KEY_RUN_OUTPUT);
         form.add(new TextViewCharSequenceAdapter(R.id.run_command, null), App.KEY_RUN_COMMAND);
         form.load(this, savedInstanceState);
+
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    run();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         progressListener = MainActivity
             .setupProgressListener(this, (ProgressBar) findViewById(R.id.progress));
         ac = controller.accountController(form);

@@ -2,6 +2,10 @@
 /local.properties
 .DS_Store
 /build
+Lima1Common/build/
+
 /captures
 .idea
 *.iml
+app/debug
+app/release

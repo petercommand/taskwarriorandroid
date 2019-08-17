@@ -10,6 +10,7 @@ import org.kvj.bravo7.form.impl.ViewFinder;
 import org.kvj.bravo7.form.impl.bundle.StringBundleAdapter;
 import org.kvj.bravo7.form.impl.widget.TextViewCharSequenceAdapter;
 import org.kvj.bravo7.form.impl.widget.TransientAdapter;
+import org.kvj.bravo7.log.Logger;
 import org.kvj.bravo7.util.Tasks;
 
 import kvj.taskw.App;
@@ -49,6 +50,7 @@ public class AnnotationDialog extends AppCompatActivity {
 
     private void doSave() {
         final String text = form.getValue(App.KEY_EDIT_TEXT);
+        final Logger logger = Logger.forInstance(this);
         if (TextUtils.isEmpty(text)) { // Nothing to save
             controller.messageShort("Input is mandatory");
             return;
@@ -72,6 +74,7 @@ public class AnnotationDialog extends AppCompatActivity {
                 }
             }
         }.exec();
+        AnnotationDialog.this.finish();
     }
 
     private void doFinish() {
