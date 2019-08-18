@@ -593,10 +593,6 @@ public class MainActivity extends AppCompatActivity implements Controller.ToastM
             case R.id.menu_tb_sync:
                 sync();
                 break;
-            case R.id.menu_tb_undo:
-                logger.d("Undo disabled");
-                // undo();
-                break;
             case R.id.menu_tb_filter:
                 showFilter();
                 break;
