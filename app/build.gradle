@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply from: '../../Configs/gradle/android.gradle'
+apply from: '../../../Configs/gradle/android.gradle'
 
 android {
     compileSdkVersion 28
