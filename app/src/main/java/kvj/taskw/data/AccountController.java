@@ -926,7 +926,7 @@ public class AccountController {
     }
 
     public static String escape(String query) {
-        return query.replace(" ", "\\ "); //.replace("(", "\\(").replace(")", "\\)");
+        return query.trim().replace(" ", "\\ ");
     }
 
     public Intent intentForRunTask() {
